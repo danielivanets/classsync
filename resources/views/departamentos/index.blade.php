@@ -1,0 +1,95 @@
+@extends('adminlte::page')
+
+@section('title', 'Departamentos')
+
+@section('content_header')
+    <h1 class="text-primary"><i class="fas fa-building"></i> Departamentos</h1>
+@stop
+
+@section('content')
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Lista de Departamentos</h3>
+        <a href="{{ route('departamentos.create') }}" class="btn btn-outline-primary">
+            <i class="fas fa-plus-circle"></i> Nuevo Departamento
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-bordered table-hover m-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th>Nombre</th>
+                        <th class="text-center" style="width: 160px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($departamentos as $departamento)
+                        <tr>
+                            <td>{{ $departamento->nombre }}</td>
+                            <td class="text-center">
+                                <a href="{{ route('departamentos.edit', $departamento) }}" class="btn btn-warning btn-sm" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <button type="button" class="btn btn-danger btn-sm" 
+                                        data-toggle="modal" 
+                                        data-target="#deleteModal" 
+                                        data-id="{{ $departamento->id }}"
+                                        data-nombre="{{ $departamento->nombre }}"
+                                        title="Eliminar">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Confirmación de Eliminación -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirmar Eliminación</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro que deseas eliminar el departamento <strong id="departamentoNombre"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <form method="POST" id="deleteForm">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@stop
+
+@section('js')
+<script>
+    $('#deleteModal').on('show.bs.modal', function (event) {
+        let button = $(event.relatedTarget);
+        let id = button.data('id');
+        let nombre = button.data('nombre');
+        let modal = $(this);
+
+        // Actualiza el texto con el nombre del departamento
+        modal.find('#departamentoNombre').text(nombre);
+
+        // Actualiza el action del formulario para enviar al método DELETE correcto
+        let action = '{{ route("departamentos.destroy", ":id") }}';
+        action = action.replace(':id', id);
+        modal.find('#deleteForm').attr('action', action);
+    });
+</script>
+@stop
