@@ -22,7 +22,10 @@
 
                 <div class="form-group">
                     <label for="email">Correo Electrónico</label>
-                    <input type="email" name="email" id="email" class="form-control" value="{{ $user->email }}" required>
+                    <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $user->email) }}" required>
+                    @error('email')
+                        <span class="invalid-feedback">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="form-group">

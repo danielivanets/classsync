@@ -52,32 +52,44 @@
                     <label for="observaciones"><i class="fas fa-sticky-note"></i> Observaciones</label>
                     <textarea name="observaciones" class="form-control" rows="2">{{ old('observaciones', $nota->observaciones) }}</textarea>
                 </div>
-
                 <div class="form-row">
+                    {{-- Profesor --}}
                     <div class="form-group col-md-6">
                         <label for="usuario_id"><i class="fas fa-user"></i> Profesor</label>
-                        <select name="usuario_id" class="form-control">
-                            @foreach($profesores as $profesor)
-                                <option value="{{ $profesor->id }}" {{ $profesor->id == $nota->usuario_id ? 'selected' : '' }}>
-                                    {{ $profesor->name }}
-                                </option>
-                            @endforeach
-                        </select>
+
+                        @if(auth()->user()->hasRole('Profesor'))
+                            {{-- Profesor fijo, no editable --}}
+                            <input type="text" class="form-control" 
+                                value="{{ auth()->user()->name }} ({{ auth()->user()->email }})" disabled>
+                            <input type="hidden" name="usuario_id" value="{{ auth()->user()->id }}">
+                        @else
+                            {{-- Select para admin --}}
+                            <select name="usuario_id" id="usuario_id" class="form-control">
+                                <option value="">Seleccione un profesor</option>
+                                @foreach($profesores as $profesor)
+                                    <option value="{{ $profesor->id }}" {{ $profesor->id == $nota->usuario_id ? 'selected' : '' }}>
+                                        {{ $profesor->name }} ({{ $profesor->email }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        @endif
                     </div>
 
+                    {{-- Asignatura --}}
                     <div class="form-group col-md-6">
                         <label for="asignatura_id"><i class="fas fa-book-reader"></i> Asignatura</label>
-                        <select name="asignatura_id" class="form-control">
+                        <select name="asignatura_id" id="asignatura_id" class="form-control" {{ auth()->user()->hasRole('Profesor') ? '' : '' }}>
+                            <option value="">Seleccione una asignatura</option>
                             @foreach($asignaturas as $asignatura)
                                 <option value="{{ $asignatura->id }}" {{ $asignatura->id == $nota->asignatura_id ? 'selected' : '' }}>
-                                    {{ $asignatura->nombre }} 
+                                    {{ $asignatura->nombre }}
+                                    @if($asignatura->departamento) - {{ $asignatura->departamento->nombre }} @endif
                                     @if($asignatura->profesor) - Prof. {{ $asignatura->profesor->name }} @endif
                                 </option>
                             @endforeach
                         </select>
                     </div>
                 </div>
-
                 <div class="d-flex justify-content-between">
                     <a href="{{ route('notas.index') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Cancelar
@@ -89,4 +101,33 @@
             </form>
         </div>
     </div>
+@stop
+@section('js')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const profesorSelect = document.getElementById('usuario_id');
+        const asignaturaSelect = document.getElementById('asignatura_id');
+
+        profesorSelect.addEventListener('change', function () {
+            const profesorId = this.value;
+            asignaturaSelect.innerHTML = '<option value="">Cargando...</option>';
+
+            fetch(`/profesor/${profesorId}/asignaturas`)
+                .then(response => response.json())
+                .then(data => {
+                    asignaturaSelect.innerHTML = '<option value="">Seleccione una asignatura</option>';
+                    data.forEach(asignatura => {
+                        const option = document.createElement('option');
+                        option.value = asignatura.id;
+                        option.textContent = `${asignatura.nombre} - ${asignatura.departamento?.nombre || ''}`;
+                        asignaturaSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    asignaturaSelect.innerHTML = '<option value="">Error al cargar asignaturas</option>';
+                });
+        });
+    });
+</script>
 @stop

@@ -13,9 +13,11 @@
             <a href="{{ route('notas.create') }}" class="btn btn-outline-primary mr-2">
                 <i class="fas fa-plus-circle"></i> Nueva Nota
             </a>
-            <button class="btn btn-info" data-toggle="modal" data-target="#modalTodasNotas">
-                <i class="fas fa-database"></i> Ver Todas las Notas
-            </button>
+            @can('administrar')
+                <button class="btn btn-info" data-toggle="modal" data-target="#modalTodasNotas">
+                    <i class="fas fa-database"></i> Ver Todas las Notas
+                </button>
+            @endcan
         </div>
     </div>
 
@@ -24,6 +26,7 @@
             <table id="notas" class="table table-bordered table-striped table-hover">
                 <thead class="bg-light">
                     <tr>
+                        <th style="display:none;">ID</th> <!-- Columna oculta para ordenar -->
                         <th>Fecha</th>
                         <th>Hora</th>
                         <th>Asignatura</th>
@@ -35,10 +38,11 @@
                 <tbody>
                     @foreach($notas as $nota)
                         <tr>
+                            <td style="display:none;">{{ $nota->id }}</td> <!-- Columna oculta con ID -->
                             <td>{{ $nota->fecha }}</td>
                             <td>{{ $nota->hora_inicio ?? '--' }} - {{ $nota->hora_fin ?? '--' }}</td>
                             <td>{{ $nota->asignatura->nombre ?? 'N/A' }}</td>
-                            <td>{{ $nota->usuario->name ?? 'N/A' }}</td>
+                            <td>{{ $nota->usuario->name ?? 'N/A' }}</td>    
                             <td>{{ Str::limit($nota->tema, 30) }}</td>
                             <td class="text-center">
                                 <a href="{{ route('notas.edit', $nota->id) }}" class="btn btn-sm btn-warning">
@@ -149,13 +153,18 @@
 @section('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+
 @stop
 
 @section('js')
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script>
         $(document).ready(function () {
             $('#notas').DataTable({
@@ -164,7 +173,20 @@
                 },
                 responsive: true,
                 autoWidth: false,
-                pageLength: 10
+                pageLength: 10,
+                order: [[0, 'desc']],
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
+                        className: 'btn btn-success mb-3',
+                        titleAttr: 'Exportar a Excel',
+                        exportOptions: {
+                            columns: [1, 2, 3, 4, 5] // No incluir la columna oculta ni la de acciones
+                        }
+                    }
+                ]
             });
 
             $('#tablaTodasNotas').DataTable({

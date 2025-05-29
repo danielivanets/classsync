@@ -12,6 +12,7 @@ use App\Http\Controllers\AsignaturaController;
 use App\Http\Controllers\HorarioController;
 use App\Http\Controllers\NotaDeClaseController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\PasswordChangeController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -35,6 +36,7 @@ Route::middleware('auth')->group(function () {
     //CRUD Usuarios
     Route::resource('admin', AdminController::class)->names('admin');
     Route::post('/admin/{id}/toggle-visible', [AdminController::class, 'toggleVisible'])->name('admin.toggleVisible');
+    Route::get('/profesores', [AdminController::class, 'profesores'])->name('profesores.index');
     //CRUD Roles
     Route::resource('role', RoleController::class)->names('role'); //roles y permisos
     // Perfil de usuario
@@ -56,4 +58,12 @@ Route::middleware('auth')->group(function () {
     Route::post('notas/{nota}/toggle-visible', [NotaDeClaseController::class, 'toggleVisible'])->name('notas.toggle-visible');
 
     Route::resource('permissions', PermissionController::class);
+
+
+
+    Route::get('/cambiar-contrasena', [PasswordChangeController::class, 'showForm'])->name('password.change');
+    Route::post('/cambiar-contrasena', [PasswordChangeController::class, 'update']);
+    Route::get('/profesor/{id}/asignaturas', [NotaDeClaseController::class, 'getAsignaturasPorProfesor'])->name('profesor.asignaturas');
+
+
 });

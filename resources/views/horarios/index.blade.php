@@ -7,14 +7,16 @@
     <h3 class="mb-0 text-primary">
         <i class="fas fa-clock mr-2"></i>Listado de Horarios
     </h3>
-    <div>
-        <a href="{{ route('horarios.create') }}" class="btn btn-outline-primary mr-2">
-            <i class="fas fa-plus"></i> Nuevo Horario
-        </a>
-        <button class="btn btn-info" data-toggle="modal" data-target="#modalTodosHorarios">
-            <i class="fas fa-database"></i> Ver Todos los Registros
-        </button>
-    </div>
+    @can('administrar')
+        <div>
+            <a href="{{ route('horarios.create') }}" class="btn btn-outline-primary mr-2">
+                <i class="fas fa-plus"></i> Nuevo Horario
+            </a>
+            <button class="btn btn-info" data-toggle="modal" data-target="#modalTodosHorarios">
+                <i class="fas fa-database"></i> Ver Todos los Registros
+            </button>
+        </div>
+    @endcan
 </div>
 @stop
 
@@ -34,25 +36,27 @@
         <table id="horarios" class="table table-bordered table-striped table-hover">
             <thead class="bg-light">
                 <tr>
-                    <th>ID</th>
+                    @can('administrar')<th>ID</th>@endcan
                     <th>Día</th>
                     <th>Inicio</th>
                     <th>Fin</th>
                     <th>Asignatura</th>
                     <th>Aula</th>
-                    <th class="text-center" style="width: 250px;">Acciones</th>
+                    <th>Profesor</th>
+                    @can('administrar')<th class="text-center" style="width: 250px;">Acciones</th>@endcan
                 </tr>
             </thead>
             <tbody>
                 @foreach($horarios as $horario)
                 <tr>
-                    <td>{{ $horario->id }}</td>
+                    @can('administrar')<td>{{ $horario->id }}</td>@endcan
                     <td>{{ $horario->dia }}</td>
                     <td>{{ $horario->hora_inicio }}</td>
                     <td>{{ $horario->hora_fin }}</td>
                     <td>{{ $horario->asignatura?->nombre ?? 'Sin asignar' }}</td>
                     <td>{{ $horario->aula?->nombre ?? 'Sin asignar' }}</td>
-                    <td class="text-center">
+                    <td>{{ $horario->asignatura?->profesor?->name ?? 'Sin asignar' }}</td> <!-- Nuevo -->
+                    @can('administrar')<td class="text-center">
                         <a href="{{ route('horarios.edit', $horario) }}" class="btn btn-sm btn-warning" title="Editar">
                             <i class="fas fa-edit"></i> Editar
                         </a>
@@ -62,7 +66,7 @@
                             data-id="{{ $horario->id }}">
                             <i class="fas fa-trash-alt"></i> Eliminar
                         </button>
-                    </td>
+                    </td>@endcan
                 </tr>
                 @endforeach
             </tbody>

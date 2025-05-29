@@ -75,8 +75,22 @@
 
 @stop
 
+@section('css')
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
+@stop
+
 @section('js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script>
+
+    @if(session('success'))
+        toastr.success("{{ session('success') }}");
+    @endif
+
+    @if(session('error'))
+        toastr.error("{{ session('error') }}");
+    @endif
+
     $('#deleteModal').on('show.bs.modal', function (event) {
         let button = $(event.relatedTarget);
         let id = button.data('id');

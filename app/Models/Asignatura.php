@@ -51,4 +51,10 @@ class Asignatura extends Model
     {
         return $this->hasMany(Horario::class); //1 a N
     }
+
+    public function scopeDelProfesor($query, $userId)
+    {
+        return $query->where('usuario_id', $userId);
+    }
+    
 }

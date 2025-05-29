@@ -323,69 +323,137 @@ return [
         ],
 
         // -------------------------
-        // ADMINISTRACIÓN
+        // HOME (SIEMPRE VISIBLE)
+        // -------------------------
+        [
+            'text' => 'Inicio',
+            'url'  => '/',
+            'icon' => 'fas fa-home',
+        ],
+
+        // -------------------------
+        // MENÚ ADMINISTRADOR
         // -------------------------
         [
             'header' => 'ADMINISTRACIÓN',
-            'can' => 'admin.index', // El header se muestra solo si el usuario puede ver Usuarios
+            'can' => 'administrar',
         ],
         [
-            'text' => 'Usuarios',
-            'route' => 'admin.index',
-            'icon' => 'fas fa-users',
-            'can' => 'admin.index', // permiso granular para listar usuarios
+            'text' => 'Usuarios y Roles',
+            'icon' => 'fas fa-users-cog',
+            'can' => 'administrar',
+            'submenu' => [
+                [
+                    'text' => 'Usuarios',
+                    'route' => 'admin.index',
+                    'icon' => 'fas fa-users',
+                    'can' => 'administrar',
+                ],
+                [
+                    'text' => 'Roles y Permisos',
+                    'route' => 'role.index',
+                    'icon' => 'fas fa-user-shield',
+                    'can' => 'administrar',
+                ],
+            ],
         ],
         [
-            'text' => 'Roles y Permisos',
-            'route' => 'role.index',
-            'icon' => 'fas fa-user-shield',
-            'can' => 'role.index',
-        ],
-        [
-            'text' => 'Aulas',
-            'route' => 'aulas.index',
-            'icon' => 'fas fa-chalkboard',
-            'can' => 'aulas.index',
-        ],
-        [
-            'text' => 'Departamentos',
-            'route' => 'departamentos.index',
-            'icon' => 'fas fa-building',
-            'can' => 'departamentos.index',
-        ],
-        [
-            'text' => 'Asignaturas',
-            'route' => 'asignaturas.index',
-            'icon' => 'fas fa-book',
-            'can' => 'asignaturas.index',
+            'text' => 'Académico',
+            'icon' => 'fas fa-university',
+            'can' => 'administrar',
+            'submenu' => [
+                [
+                    'text' => 'Aulas',
+                    'route' => 'aulas.index',
+                    'icon' => 'fas fa-chalkboard',
+                    'can' => 'administrar',
+                ],
+                [
+                    'text' => 'Departamentos',
+                    'route' => 'departamentos.index',
+                    'icon' => 'fas fa-building',
+                    'can' => 'administrar',
+                ],
+                [
+                    'text' => 'Asignaturas',
+                    'route' => 'asignaturas.index',
+                    'icon' => 'fas fa-book',
+                    'can' => 'administrar',
+                ],
+            ],
         ],
         [
             'text' => 'Horarios',
-            'route' => 'horarios.index',
             'icon' => 'fas fa-calendar-alt',
-            'can' => 'horarios.index',
+            'can' => 'administrar',
+            'submenu' => [
+                [
+                    'text' => 'Gestión de Horarios',
+                    'route' => 'horarios.index',
+                    'icon' => 'fas fa-calendar',
+                    'can' => 'horarios.ver',
+                ],
+            ],
         ],
         [
             'text' => 'Notas de Clase',
+            'icon' => 'fas fa-notes-medical',
             'route' => 'notas.index',
-            'icon' => 'fas fa-clipboard',
-            'can' => 'notas.index',
+            'can' => 'notas.ver',
         ],
 
         // -------------------------
-        // AJUSTES DE CUENTA
+        // MENÚ PROFESOR
         // -------------------------
         [
-            'header' => 'AJUSTES DE CUENTA',
-            'can' => 'profile.index',
+            'header' => 'PROFESOR',
+            'can' => 'profesor',
         ],
-        /*[
-            'text' => 'Perfil',
-            'route' => 'profile.index',
-            'icon' => 'fas fa-user-cog',
-            'can' => 'profile.index',
-        ],*/
+        [
+            'text' => 'Mis Clases',
+            'icon' => 'fas fa-chalkboard-teacher',
+            'can' => 'profesor',
+            'submenu' => [
+                [
+                    'text' => 'Asignaturas',
+                    'route' => 'asignaturas.index',
+                    'icon' => 'fas fa-book',
+                    'can' => 'asignaturas.ver',
+                ],
+                [
+                    'text' => 'Notas',
+                    'route' => 'notas.index',
+                    'icon' => 'fas fa-clipboard-list',
+                    'can' => 'notas.ver',
+                ],
+                [
+                    'text' => 'Horario',
+                    'route' => 'horarios.index',
+                    'icon' => 'fas fa-calendar-alt',
+                    'can' => 'horarios.ver',
+                ],
+            ],
+        ],
 
+        // -------------------------
+        // MENÚ INVITADO
+        // -------------------------
+        [
+            'header' => 'INVITADO',
+            'can' => 'invitados',
+        ],
+        [
+            'text' => 'Clases',
+            'icon' => 'fas fa-chalkboard',
+            'route' => 'aulas.index',
+            'can' => 'invitados',
+        ],
+        [
+            'text' => 'Profesores',
+            'route' => 'profesores.index',
+            'icon' => 'fas fa-chalkboard-teacher',
+            'can' => 'invitados',
+        ],
     ],
 
 

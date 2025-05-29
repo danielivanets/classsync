@@ -6,7 +6,7 @@ use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Models\User;
-
+use App\Models\Departamento;
 class RolesAndPermissionsSeeder extends Seeder
 {
     public function run()
@@ -14,30 +14,51 @@ class RolesAndPermissionsSeeder extends Seeder
         // Limpia la caché de roles y permisos
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions(); 
 
-        // Permisos agrupados por rol, adaptados a rutas y funcionalidades
         $permissions = [
-            'Administrador' => [ 'administrar',
-                'admin.index', 'admin.create', 'admin.edit', 'admin.destroy', 'admin.toggle-visible',
-                'role.index', 'role.create', 'role.edit', 'role.destroy',
-                'permissions.index', 'permissions.create', 'permissions.edit', 'permissions.destroy',
-                'profile.index', 'profile.create', 'profile.show','profile.edit', 'profile.destroy',
-                'aulas.index', 'aulas.create', 'aulas.edit', 'aulas.destroy', 'aulas.toggle-visible',
-                'departamentos.index', 'departamentos.create', 'departamentos.edit', 'departamentos.destroy',
-                'asignaturas.index', 'asignaturas.create', 'asignaturas.show','asignaturas.edit', 'asignaturas.destroy', 'asignaturas.toggle-visible',
-                'horarios.index', 'horarios.create', 'horarios.edit', 'horarios.destroy', 'horarios.toggle-visible',
-                'notas.index', 'notas.create', 'notas.edit', 'notas.destroy', 'notas.toggle-visible',
+            'Administrador' => [
+                'administrar', // acceso total (puede seguir siendo utilizado en los middlewares)
+
+                // Usuarios
+                'usuarios.ver', 'usuarios.crear', 'usuarios.editar', 'usuarios.eliminar', 'usuarios.toggle',
+
+                // Roles y permisos
+                'roles.ver', 'roles.crear', 'roles.editar', 'roles.eliminar',
+                'permisos.ver', 'permisos.crear', 'permisos.editar', 'permisos.eliminar',
+
+                // Perfil
+                'perfil.ver', 'perfil.crear', 'perfil.mostrar', 'perfil.editar', 'perfil.eliminar',
+
+                // Aulas
+                'aulas.ver', 'aulas.crear', 'aulas.editar', 'aulas.eliminar', 'aulas.toggle',
+
+                // Departamentos
+                'departamentos.ver', 'departamentos.crear', 'departamentos.editar', 'departamentos.eliminar',
+
+                // Asignaturas
+                'asignaturas.ver', 'asignaturas.crear', 'asignaturas.mostrar', 'asignaturas.editar', 'asignaturas.eliminar', 'asignaturas.toggle',
+
+                // Horarios
+                'horarios.ver', 'horarios.crear', 'horarios.editar', 'horarios.eliminar', 'horarios.toggle',
+
+                // Notas
+                'notas.ver', 'notas.crear', 'notas.editar', 'notas.eliminar', 'notas.toggle',
             ],
 
-            'Profesor' => [ 'profesor',
-                'asignaturas.index',
-                'horarios.index',
-                'aulas.index',
-                'notas.index', 'notas.create', 'notas.edit',
-                'profile.index', 'profile.edit',
+            'Profesor' => [
+                'profesor', // acceso al menú profesor
+
+                // Vista de sus recursos
+                'asignaturas.ver',
+                'horarios.ver',
+                'aulas.ver',
+                'notas.ver', 'notas.crear', 'notas.editar',
+                'perfil.ver', 'perfil.editar',
             ],
 
             'Invitado' => [
-                'profile.index', 'profile.edit',
+                'invitados',
+                'aulas.ver',
+                'profesores.ver',
             ],
         ];
 
@@ -87,10 +108,39 @@ class RolesAndPermissionsSeeder extends Seeder
                     'password' => bcrypt('profesor123'),
                     'visible' => true,
                     'email_verified_at' => now(),
+                    'debe_cambiar_contrasena' => true,
                 ]
             );
 
             $profesor->assignRole('Profesor');
+        }
+        // Profesores por departamento
+        $departamentos = Departamento::pluck('id', 'nombre')->toArray();
+
+        foreach ($departamentos as $nombreDepto => $idDepto) {
+            $numProfesores = rand(2, 4); // Puedes ajustar esta cantidad
+
+            for ($i = 1; $i <= $numProfesores; $i++) {
+                $email = strtolower(str_replace(' ', '', $nombreDepto)) . "_prof{$i}@edu.gva.es";
+                $name = $faker->name;
+
+                $profesor = User::firstOrCreate(
+                    ['email' => $email],
+                    [
+                        'name' => $name,
+                        'password' => bcrypt('profesor123'),
+                        'visible' => true,
+                        'email_verified_at' => now(),
+                        'debe_cambiar_contrasena' => true,
+                    ]
+                );
+
+                $profesor->assignRole('Profesor');
+
+                // Opcional: puedes guardar en un campo `departamento_id` si tu modelo User lo tiene
+                // $profesor->departamento_id = $idDepto;
+                // $profesor->save();
+            }
         }
 
         // Crear usuario invitado

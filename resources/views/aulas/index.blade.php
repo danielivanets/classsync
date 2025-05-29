@@ -10,14 +10,14 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="mb-0"><i class="fas fa-school text-primary"></i> Aulas Registradas</h3>
         <div>
-
+            @can('administrar')
             <a href="{{ route('aulas.create') }}" class="btn btn-outline-primary mr-2">
                 <i class="fas fa-plus-circle"></i> Alta Aula
             </a>
             <button class="btn btn-info" data-toggle="modal" data-target="#modalTodasAulas">
                 <i class="fas fa-database"></i> Ver Todos los Registros
             </button>
-
+            @endcan
         </div>
     </div>
 
@@ -27,20 +27,23 @@
                 <thead class="bg-light">
                     <tr>
                         <th>Nombre</th>
+                        <th>Ubicación</th>
+                        @canany(['administrar', 'profesor'])
                         <th>Capacidad</th>
                         <th>Tipo</th>
-                        <th>Ubicación</th>
                         <th>Disponible</th>
                         <th class="text-center" style="width: 200px;">Acciones</th>
+                        @endcanany
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($aulas as $aula)
                         <tr>
                             <td>{{ $aula->nombre }}</td>
+                            <td>{{ $aula->ubicacion }}</td>
+                            @canany(['administrar', 'profesor'])
                             <td>{{ $aula->capacidad }}</td>
                             <td>{{ ucfirst($aula->tipo) }}</td>
-                            <td>{{ $aula->ubicacion }}</td>
                             <td>
                                 @if($aula->disponible)
                                     <span class="badge badge-success">Sí</span>
@@ -60,6 +63,7 @@
                                     <i class="fas fa-trash-alt"></i> Eliminar
                                 </button>
                             </td>
+                            @endcanany
                         </tr>
                     @endforeach
                 </tbody>
@@ -151,6 +155,7 @@
                 </tr>
               @endforeach
             </tbody>
+
           </table>
         </div>
       </div>

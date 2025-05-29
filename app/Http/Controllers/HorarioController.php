@@ -14,10 +14,27 @@ class HorarioController extends Controller
      */
     public function index()
     {
-        $horarios = Horario::visible()->with(['asignatura', 'aula'])->get();
-        $todosHorarios = Horario::with(['asignatura', 'aula'])->get(); // Para modal
+        $user = auth()->user();
+
+        if ($user->hasRole('Profesor')) {
+            // Horarios visibles del profesor
+            $horarios = Horario::visible()
+                ->delProfesor($user->id)
+                ->with(['asignatura', 'aula'])
+                ->get();
+
+            // Mostrar el modal al profesor
+            $todosHorarios = collect(); 
+        } else {
+            // administradores y otros roles
+            $horarios = Horario::visible()->with(['asignatura', 'aula'])->get();
+            $todosHorarios = Horario::with(['asignatura', 'aula'])->get();
+        }
+
         return view('horarios.index', compact('horarios', 'todosHorarios'));
     }
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -67,6 +84,9 @@ class HorarioController extends Controller
         $asignaturas = Asignatura::visible()->with(['profesor', 'aula'])->get();
         $aulas = Aula::visible()->get();
         $dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+
+        $horario->hora_inicio = \Carbon\Carbon::parse($horario->hora_inicio)->format('H:i');
+        $horario->hora_fin = \Carbon\Carbon::parse($horario->hora_fin)->format('H:i');
 
         return view('horarios.edit', compact('horario', 'asignaturas', 'aulas', 'dias'));
     }

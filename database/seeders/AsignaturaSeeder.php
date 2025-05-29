@@ -31,29 +31,133 @@ class AsignaturaSeeder extends Seeder
             'GS - Administración y Finanzas 1º' => [ 'Gestión de la documentación jurídica y empresarial', 'Recursos humanos y responsabilidad social corporativa', 'Ofimática y proceso de la información', 'Proceso integral de la actividad comercial', 'Comunicación y atención al cliente', 'Inglés técnico', 'Formación y orientación laboral' ],
             'GS - Administración y Finanzas 2º' => [ 'Gestión financiera', 'Contabilidad y fiscalidad', 'Gestión logística y comercial', 'Simulación empresarial', 'Proyecto de administración y finanzas', 'Prácticas en empresa (FCT)' ],
             'GS - DAM 1º' => [ 'Sistemas informáticos', 'Bases de datos', 'Programación', 'Lenguajes de marcas y sistemas de gestión de información', 'Entornos de desarrollo', 'Formación y orientación laboral' ], //Grado Superior - Desarrollo de Aplicaciones Multiplataforma
-            ' 2º' => [ 'Acceso a datos', 'Desarrollo de interfaces', 'Programación multimedia y dispositivos móviles', 'Programación de servicios y procesos', 'Sistemas de gestión empresarial', 'Proyecto de DAM', 'Prácticas en empresa (FCT)' ],
+            'GS - DAM 2º' => [ 'Acceso a datos', 'Desarrollo de interfaces', 'Programación multimedia y dispositivos móviles', 'Programación de servicios y procesos', 'Sistemas de gestión empresarial', 'Proyecto de DAM', 'Prácticas en empresa (FCT)' ],
+        ];
+        $departamentoPorAsignatura = [
+            // Lenguas
+            'Lengua Castellana y Literatura' => 'Lenguas',
+            'Inglés' => 'Lenguas',
+            'Inglés técnico' => 'Lenguas',
+            'Redacción de documentos' => 'Lenguas',
+
+            // Matemáticas
+            'Matemáticas' => 'Matematicas',
+            'Matemáticas I' => 'Matematicas',
+            'Matemáticas II' => 'Matematicas',
+            'Técnica contable' => 'Matematicas',
+            'Contabilidad y fiscalidad' => 'Matematicas',
+            'Gestión financiera' => 'Matematicas',
+
+            // Ciencias
+            'Ciencias Sociales' => 'Historia',
+            'Geografía e Historia' => 'Historia',
+            'Historia del Mundo Contemporáneo' => 'Historia',
+            'Historia de España' => 'Historia',
+
+            'Ciencias Naturales' => 'Biologia',
+            'Biología y Geología' => 'Biologia',
+
+            'Física y Química' => 'Fisica',
+
+            // Filosofía
+            'Filosofía' => 'Filosofia',
+
+            // Educación Física
+            'Educación Física' => 'Educación Fisica',
+
+            // Tecnología / Informática
+            'Tecnología' => 'Informatica',
+            'Tecnologías de la Información y la Comunicación' => 'Informatica',
+            'TIC II' => 'Informatica',
+            'Tratamiento de datos y hojas de cálculo' => 'Informatica',
+            'Procesadores de textos' => 'Informatica',
+            'Aplicaciones ofimáticas' => 'Informatica',
+            'Redes locales' => 'Informatica',
+            'Sistemas operativos monopuesto' => 'Informatica',
+            'Sistemas operativos en red' => 'Informatica',
+            'Servicios en red' => 'Informatica',
+            'Aplicaciones web' => 'Informatica',
+            'Montaje y mantenimiento de equipos' => 'Informatica',
+            'Seguridad informática' => 'Informatica',
+            'Sistema operativo' => 'Informatica',
+            'Sistemas informáticos' => 'Informatica',
+            'Bases de datos' => 'Informatica',
+            'Programación' => 'Informatica',
+            'Lenguajes de marcas y sistemas de gestión de información' => 'Informatica',
+            'Entornos de desarrollo' => 'Informatica',
+            'Acceso a datos' => 'Informatica',
+            'Desarrollo de interfaces' => 'Informatica',
+            'Programación multimedia y dispositivos móviles' => 'Informatica',
+            'Programación de servicios y procesos' => 'Informatica',
+            'Sistemas de gestión empresarial' => 'Informatica',
+
+            // Artes
+            'Música' => 'Artes',
+            'Plástica' => 'Artes',
+            'Educación Plástica' => 'Artes',
+
+            // Religión / Ética
+            'Religión / Valores Éticos' => 'Religión',
+
+            // Tutoría
+            'Tutoría' => 'Orientación',
+
+            // Economía / Empresa
+            'Economía' => 'Economia',
+            'Empresa y Diseño de Modelos de Negocio' => 'Economia',
+            'Comunicación empresarial' => 'Economia',
+            'Comunicación empresarial y atención al cliente' => 'Economia',
+            'Operaciones administrativas de compra-venta' => 'Economia',
+            'Empresa y administración' => 'Economia',
+            'Tratamiento informático de la información' => 'Economia',
+            'Gestión de recursos humanos' => 'Economia',
+            'Gestión logística y comercial' => 'Economia',
+            'Empresa en el aula' => 'Economia',
+            'Simulación empresarial' => 'Economia',
+            'Proyecto de administración y finanzas' => 'Economia',
+            'Empresa e iniciativa emprendedora' => 'Economia',
+            'Proyecto de DAM' => 'Economia',
+
+            // FOL
+            'Formación y Orientación Laboral' => 'FOL',
+            'Prácticas en empresa' => 'FOL',
+            'Prácticas en empresa (FCT)' => 'FOL',
+
+            // Otros
+            'Gestión de la documentación jurídica y empresarial' => 'Administración',
+            'Recursos humanos y responsabilidad social corporativa' => 'Administración',
+            'Ofimática y proceso de la información' => 'Administración',
+            'Proceso integral de la actividad comercial' => 'Administración',
+            'Comunicación y atención al cliente' => 'Administración',
         ];
 
-        // Obtenemos todos los usuarios con rol 'Profesor'
+        // Crear todos los departamentos incluidos "Otros"
+        $departamentosUsados = array_unique(array_merge(array_values($departamentoPorAsignatura), ['Otros']));
+        foreach ($departamentosUsados as $nombre) {
+            Departamento::firstOrCreate(['nombre' => $nombre]);
+        }
+
+        // Mapa rápido de nombre => ID
+        $departamentosPorNombre = Departamento::pluck('id', 'nombre')->toArray();
+
+        // Profesores
         $profesores = User::role('Profesor')->pluck('id')->toArray();
-        $departamentos = Departamento::pluck('id')->toArray();
 
         foreach ($cursosYAsignaturas as $nombreCurso => $asignaturas) {
-            // Buscar aula cuyo nombre contenga el nombre del curso
             $aula = Aula::where('nombre', 'like', "%{$nombreCurso}%")->first();
-        
+
             if ($aula) {
                 foreach ($asignaturas as $nombreAsignatura) {
+                    $nombreDepto = $departamentoPorAsignatura[$nombreAsignatura] ?? 'Otros';
                     Asignatura::create([
                         'nombre' => $nombreAsignatura,
                         'descripcion' => null,
-                        'departamento_id' => Arr::random($departamentos),
+                        'departamento_id' => $departamentosPorNombre[$nombreDepto],
                         'aula_id' => $aula->id,
                         'usuario_id' => Arr::random($profesores),
                     ]);
                 }
             } else {
-                // Opcional: debug para saber qué cursos no encontraron aula
                 info("No se encontró aula para curso: $nombreCurso");
             }
         }

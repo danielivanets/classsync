@@ -49,8 +49,9 @@
                         <select class="form-control @error('usuario_id') is-invalid @enderror" id="usuario_id" name="usuario_id">
                             <option value="">Seleccione un profesor</option>
                             @foreach($profesores as $profesor)
-                                <option value="{{ $profesor->id }}" {{ old('usuario_id') == $profesor->id ? 'selected' : '' }}>
-                                    {{ $profesor->name }}
+                                <option value="{{ $profesor->id }}" {{ old('usuario_id') == $profesor->id ? 'selected' : '' }}
+                                    data-departamento="{{ explode('_', explode('@', $profesor->email)[0])[0] }}">
+                                    {{ $profesor->name }} — <small class="text-muted">{{ $profesor->email }}</small>
                                 </option>
                             @endforeach
                         </select>
@@ -59,16 +60,25 @@
                         @enderror
                     </div>
 
+
                     <div class="form-group">
-                        <label for="departamento_id"><i class="fas fa-building mr-1 text-muted"></i> Departamento</label>
-                        <select class="form-control @error('departamento_id') is-invalid @enderror" id="departamento_id" name="departamento_id">
-                            <option value="">Seleccione un departamento</option>
+                        <label for="departamento_id">
+                            <i class="fas fa-building mr-1 text-muted"></i> Departamento
+                        </label>
+
+                        {{-- Select visible solo para mostrar --}}
+                        <select class="form-control" id="departamento_id_display" disabled>
+                            <option value=""> --- Seleccione un profesor para mostrar el departamento ---</option>
                             @foreach($departamentos as $departamento)
                                 <option value="{{ $departamento->id }}" {{ old('departamento_id') == $departamento->id ? 'selected' : '' }}>
                                     {{ $departamento->nombre }}
                                 </option>
                             @endforeach
                         </select>
+
+                        {{-- Campo oculto que se enviará al backend --}}
+                        <input type="hidden" name="departamento_id" id="departamento_id" value="{{ old('departamento_id') }}">
+
                         @error('departamento_id')
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
@@ -105,8 +115,53 @@
 @stop
 
 @section('css')
-    <link rel="stylesheet" href="/css/admin_custom.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
 @stop
 
 @section('js')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Inicializar Select2
+        $('#usuario_id').select2({
+            theme: 'bootstrap4',
+            placeholder: "Seleccione un profesor",
+            allowClear: true,
+            width: 'resolve' // o '100%' si prefieres forzarlo
+        });
+
+        const departamentoHidden = $('#departamento_id');
+        const departamentoDisplay = $('#departamento_id_display');
+
+        // Evento change usando jQuery para Select2
+        $('#usuario_id').on('change', function () {
+            const selectedOption = $(this).find('option:selected');
+            const departamentoSlug = selectedOption.data('departamento');
+
+            let found = false;
+
+            departamentoDisplay.find('option').each(function () {
+                const nombre = $(this).text().trim().toLowerCase();
+
+                if (departamentoSlug && nombre.includes(departamentoSlug.toLowerCase())) {
+                    departamentoDisplay.val($(this).val());
+                    departamentoHidden.val($(this).val());
+                    found = true;
+                    return false; // salir del each
+                }
+            });
+
+            if (!found) {
+                departamentoDisplay.val('');
+                departamentoHidden.val('');
+            }
+
+            departamentoDisplay.trigger('change'); // para refrescar el select disabled (opcional)
+        });
+
+        // Disparar evento change para cargar con old() si aplica
+        $('#usuario_id').trigger('change');
+    });
+</script>
 @stop

@@ -151,4 +151,16 @@ class AdminController extends Controller
         ]);
     }
 
+    public function profesores()
+    {
+        $users = User::select('id', 'name', 'email')
+                    ->where('visible', true)
+                    ->whereHas('roles', function ($query) {
+                        $query->where('name', 'Profesor');
+                    })
+                    ->get();
+
+        return view('admin.profesores-index', compact('users'));
+    }
+
 }

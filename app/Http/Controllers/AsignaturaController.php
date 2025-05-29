@@ -10,28 +10,55 @@ use Illuminate\Http\Request;
 
 class AsignaturaController extends Controller
 {
+    
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        // Obtener solo asignaturas visibles con relaciones
-        $asignaturas = Asignatura::with(['aula', 'departamento', 'profesor'])->visible()->get();
-        // Obtener todas las asignaturas con relaciones
-        $todasAsignaturas = Asignatura::with(['aula', 'departamento', 'profesor'])->get();
+        if (auth()->user()->hasRole('Profesor')) {
+            // Usar el scope para traer solo asignaturas del profesor autenticado
+            $asignaturas = Asignatura::with(['aula', 'departamento', 'profesor'])
+                                ->delProfesor(auth()->id())
+                                ->visible()
+                                ->get();
+            $todasAsignaturas = collect(); // vacío o no mostrar modal
+        } else {
+            // Para admin y otros roles
+            $asignaturas = Asignatura::with(['aula', 'departamento', 'profesor'])->visible()->get();
+            $todasAsignaturas = Asignatura::with(['aula', 'departamento', 'profesor'])->get();
+        }
+
         return view('asignaturas.index', compact('asignaturas', 'todasAsignaturas'));
     }
+
+
 
 
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    /*public function create()
     {
         $aulas = Aula::all();
         $departamentos = Departamento::all();
         $profesores = User::role('Profesor')->get();
+        return view('asignaturas.create', compact('aulas', 'departamentos', 'profesores'));
+    }*/
+    public function create()
+    {
+        $aulas = Aula::all();
+        $departamentos = Departamento::all()->keyBy('id');
+
+        // Extraer y asociar dinámicamente el departamento desde el correo del profesor
+        $profesores = User::role('Profesor')->get()->map(function ($profesor) use ($departamentos) {
+            $emailPrefix = explode('_', explode('@', $profesor->email)[0])[0]; // ej: "informatica"
+            $departamento = Departamento::where('nombre', $emailPrefix)->first();
+            $profesor->departamento_id = $departamento->id ?? null;
+            return $profesor;
+        });
+
         return view('asignaturas.create', compact('aulas', 'departamentos', 'profesores'));
     }
 
@@ -67,8 +94,16 @@ class AsignaturaController extends Controller
     public function edit(Asignatura $asignatura)
     {
         $aulas = Aula::all();
-        $departamentos = Departamento::all();
-        $profesores = User::role('Profesor')->get();
+        $departamentos = Departamento::all()->keyBy('id');
+
+        // Extraer y asociar dinámicamente el departamento desde el correo del profesor
+        $profesores = User::role('Profesor')->get()->map(function ($profesor) use ($departamentos) {
+            $emailPrefix = explode('_', explode('@', $profesor->email)[0])[0]; // ej: "informatica"
+            $departamento = Departamento::where('nombre', $emailPrefix)->first();
+            $profesor->departamento_id = $departamento->id ?? null;
+            return $profesor;
+        });
+
         return view('asignaturas.edit', compact('asignatura', 'aulas', 'departamentos', 'profesores'));
     }
 

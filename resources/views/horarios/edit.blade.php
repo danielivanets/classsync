@@ -77,11 +77,10 @@
                             required>
                             <option value="">Seleccione una asignatura</option>
                             @foreach($asignaturas as $asignatura)
-                                <option value="{{ $asignatura->id }}"
-                                    {{ old('asignatura_id', $horario->asignatura_id) == $asignatura->id ? 'selected' : '' }}>
-                                    {{ $asignatura->nombre }} 
-                                    — {{ $asignatura->profesor->name ?? 'Sin profesor' }} 
-                                    — {{ $asignatura->aula->nombre ?? 'Sin aula' }}
+                                <option value="{{ $asignatura->id }}" {{ old('asignatura_id', $horario->asignatura_id) == $asignatura->id ? 'selected' : '' }}>
+                                    {{ $asignatura->nombre }}
+                                    @if($asignatura->departamento) - {{ $asignatura->departamento->nombre }} @endif
+                                    @if($asignatura->profesor) - Prof. {{ $asignatura->profesor->name }} @endif
                                 </option>
                             @endforeach
                         </select>
@@ -89,6 +88,7 @@
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
+
                     
                 </div>
 
@@ -108,18 +108,19 @@
 
 @section('css')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-@stop
+    <link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
+@stop   
 
 
 @section('js')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#asignatura_id').select2({
+                theme: 'bootstrap4',
                 placeholder: "Seleccione una asignatura",
                 allowClear: true,
-                width: '100%'
+                width: 'resolve'
             });
         });
     </script>

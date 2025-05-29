@@ -34,4 +34,10 @@ class Horario extends Model
     {
         return $this->belongsTo(Aula::class); //N a 1
     }
+    public function scopeDelProfesor($query, $profesorId)
+    {
+        return $query->whereHas('asignatura', function ($q) use ($profesorId) {
+            $q->where('usuario_id', $profesorId);
+        });
+    }
 }

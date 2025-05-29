@@ -14,11 +14,35 @@ class NotaDeClaseController extends Controller
      */
     public function index()
     {
-        $notas = NotaDeClase::with(['asignatura', 'usuario'])->visible()->get();
-        $todasNotas = NotaDeClase::with(['asignatura', 'usuario'])->get();
+        $user = auth()->user();
+
+        if ($user->hasRole('Profesor')) {
+            // Usamos la relación y scope visible, ordenando por id descendente
+            $notas = $user->notasDeClase()
+                        ->with(['asignatura', 'usuario'])
+                        ->visible()
+                        ->orderBy('id', 'desc')
+                        ->get();
+
+            $todasNotas = collect(); // No mostrar modal para profesores
+        } else {
+            // Admins y otros roles con acceso completo, ordenando también
+            $notas = NotaDeClase::with(['asignatura', 'usuario'])
+                                ->visible()
+                                ->orderBy('id', 'desc')
+                                ->get();
+
+            $todasNotas = NotaDeClase::with(['asignatura', 'usuario'])
+                                    ->orderBy('id', 'desc')
+                                    ->get();
+        }
 
         return view('notas.index', compact('notas', 'todasNotas'));
     }
+
+
+
+
 
 
     /**
@@ -26,10 +50,24 @@ class NotaDeClaseController extends Controller
      */
     public function create()
     {
-        $todasAsignaturas = Asignatura::with('profesor')->visible()->get();
-        $profesores = User::role('Profesor')->get();
-        return view('notas.create', compact('todasAsignaturas', 'profesores'));
+        $user = auth()->user();
+
+        if ($user->hasRole('Profesor')) {
+            // Solo asignaturas del profesor autenticado
+            $todasAsignaturas = Asignatura::with(['departamento'])
+                ->where('usuario_id', $user->id)
+                ->visible()
+                ->get();
+
+            $profesores = collect([$user]); // Solo el usuario actual
+        } else {
+            $todasAsignaturas = Asignatura::with(['profesor', 'departamento'])->visible()->get();
+            $profesores = User::role('Profesor')->get();
+        }
+
+        return view('notas.create', compact('todasAsignaturas', 'profesores', 'user'));
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -46,9 +84,8 @@ class NotaDeClaseController extends Controller
             'usuario_id' => 'required|exists:users,id',
             'asignatura_id' => 'required|exists:asignaturas,id',
         ]);
-    
-        // Añadir visibilidad como true/false explícitamente
-        $validated['visible'] = $request->has('visible');
+
+        $validated['visible'] = true;
     
         NotaDeClase::create($validated);
     
@@ -68,12 +105,28 @@ class NotaDeClaseController extends Controller
      */
     public function edit(NotaDeClase $nota)
     {
+        $user = auth()->user();
+
+        if ($user->hasRole('Profesor')) {
+            // Solo las asignaturas del profesor autenticado
+            $asignaturas = Asignatura::with(['profesor', 'departamento'])
+                ->where('usuario_id', $user->id)
+                ->visible()
+                ->get();
+
+            // El profesor será el usuario autenticado
+            $profesores = collect([$user]);
+        } else {
+            // Admin u otros roles
+            $asignaturas = Asignatura::with(['profesor', 'departamento'])->visible()->get();
+            $profesores = User::role('Profesor')->get();
+        }
+
         $nota->fecha = \Carbon\Carbon::parse($nota->fecha);
-        $asignaturas = Asignatura::with('profesor')->visible()->get();
-        $profesores = User::role('Profesor')->get();
 
         return view('notas.edit', compact('nota', 'asignaturas', 'profesores'));
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -117,6 +170,16 @@ class NotaDeClaseController extends Controller
             'success' => true,
             'visible' => $nota->visible,
         ]);
+    }
+
+    public function getAsignaturasPorProfesor($id)
+    {
+        $asignaturas = Asignatura::with(['departamento'])
+        ->where('usuario_id', $id)
+        ->visible()
+        ->get();
+
+        return response()->json($asignaturas);
     }
 
 }

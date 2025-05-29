@@ -43,9 +43,10 @@
                         <select name="usuario_id" id="usuario_id" class="form-control @error('usuario_id') is-invalid @enderror">
                             <option value="">Seleccione un profesor</option>
                             @foreach($profesores as $profesor)
-                                <option value="{{ $profesor->id }}" 
+                                <option value="{{ $profesor->id }}"
+                                        data-departamento-id="{{ $profesor->departamento_id }}"
                                     {{ old('usuario_id', $asignatura->usuario_id) == $profesor->id ? 'selected' : '' }}>
-                                    {{ $profesor->name }}
+                                    {{ $profesor->name }} ({{ $profesor->email }})
                                 </option>
                             @endforeach
                         </select>
@@ -55,8 +56,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="departamento_id">Departamento</label>
-                        <select name="departamento_id" id="departamento_id" class="form-control @error('departamento_id') is-invalid @enderror">
+                        <label for="departamento_id">
+                            <i class="fas fa-building mr-1 text-muted"></i> Departamento
+                        </label>
+
+                        {{-- Select visible solo para mostrar --}}
+                        <select id="departamento_id_display" class="form-control" disabled>
                             <option value="">Seleccione un departamento</option>
                             @foreach($departamentos as $departamento)
                                 <option value="{{ $departamento->id }}" 
@@ -65,6 +70,8 @@
                                 </option>
                             @endforeach
                         </select>
+                        <input type="hidden" name="departamento_id" id="departamento_id" 
+                            value="{{ old('departamento_id', $asignatura->departamento_id) }}">
                         @error('departamento_id')
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
@@ -100,3 +107,42 @@
     </div>
 </div>
 @stop
+@section('css')
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
+@stop
+@section('js')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#usuario_id').select2({
+            theme: 'bootstrap4',
+            placeholder: "Seleccione un profesor",
+            allowClear: true,
+            width: 'resolve'
+        });
+
+        const departamentoDisplay = $('#departamento_id_display');
+        const departamentoHidden = $('#departamento_id');
+
+        $('#usuario_id').on('change', function () {
+            const selectedOption = $(this).find('option:selected');
+            const departamentoId = selectedOption.data('departamento-id');
+
+            if (departamentoId) {
+                departamentoDisplay.val(departamentoId);
+                departamentoHidden.val(departamentoId);
+            } else {
+                departamentoDisplay.val('');
+                departamentoHidden.val('');
+            }
+
+            departamentoDisplay.trigger('change'); // refrescar si necesario
+        });
+
+        // Disparar evento para cargar con old() o el valor actual
+        $('#usuario_id').trigger('change');
+    });
+</script>
+@stop
+

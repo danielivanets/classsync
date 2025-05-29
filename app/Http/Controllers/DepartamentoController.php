@@ -29,8 +29,14 @@ class DepartamentoController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate(['nombre' => 'required|string|max:255']);
-        Departamento::create($request->all());
+        $request->validate([
+            'nombre' => 'required|string|max:255|unique:departamentos,nombre',
+        ], [
+            'nombre.required' => 'El nombre del departamento es obligatorio.',
+            'nombre.unique' => 'Este nombre de departamento ya existe.',
+            'nombre.max' => 'El nombre no puede tener más de 255 caracteres.',
+        ]);
+        Departamento::create($request->only('nombre'));
 
         return redirect()->route('departamentos.index')->with('success', 'Departamento creado correctamente.');
     }

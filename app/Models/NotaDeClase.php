@@ -33,11 +33,14 @@ class NotaDeClase extends Model
 
     public function usuario()
     {
-        return $this->belongsTo(User::class); //N a 1
+        return $this->belongsTo(User::class, 'usuario_id'); //N a 1
     }
+
 
     public function scopeVisible($query)
     {
         return $query->where('visible', true); 
     }
+
+    
 }

@@ -14,13 +14,13 @@ class DepartamentoSeeder extends Seeder
     public function run()
     {
         $departamentos = [
-            'Informática',
-            'Matemáticas',
-            'Física',
-            'Biología',
+            'Informatica',
+            'Matematicas',
+            'Fisica',
+            'Biologia',
             'Historia',
             'Lenguas',
-            'Economía',
+            'Economia',
             'Arquitectura',
         ];
 

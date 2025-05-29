@@ -7,14 +7,16 @@
     <h3 class="mb-0 text-primary">
         <i class="fas fa-book mr-2"></i>Listado de Asignaturas
     </h3>
-    <div>
-        <a href="{{ route('asignaturas.create') }}" class="btn btn-outline-primary mr-2">
-            <i class="fas fa-plus"></i> Nueva Asignatura
-        </a>
-        <button class="btn btn-info" data-toggle="modal" data-target="#modalTodasAsignaturas">
-            <i class="fas fa-database"></i> Ver Todos los Registros
-        </button>
-    </div>
+    @if(auth()->user()->can('administrar'))
+      <div>
+          <a href="{{ route('asignaturas.create') }}" class="btn btn-outline-primary mr-2">
+              <i class="fas fa-plus"></i> Nueva Asignatura
+          </a>
+          <button class="btn btn-info" data-toggle="modal" data-target="#modalTodasAsignaturas">
+              <i class="fas fa-database"></i> Ver Todos los Registros
+          </button>
+      </div>
+    @endif
 </div>
 @stop
 
@@ -37,7 +39,7 @@
         <table id="asignaturas" class="table table-bordered table-striped table-hover">
             <thead class="bg-light">
                 <tr>
-                    <th>ID</th>
+                    @can('administrar')<th>ID</th>@endcan
                     <th>Nombre</th>
                     <th>Profesor</th>
                     <th>Departamento</th>
@@ -48,26 +50,29 @@
             <tbody>
                 @foreach($asignaturas as $asignatura)
                     <tr>
-                        <td>{{ $asignatura->id }}</td>
+                        @can('administrar')<td>{{ $asignatura->id }}</td>@endcan
                         <td>{{ $asignatura->nombre }}</td>
                         <td>{{ $asignatura->profesor?->name ?? 'Sin asignar' }}</td>
                         <td>{{ $asignatura->departamento?->nombre ?? 'Sin asignar' }}</td>
-                        <td>{{ $asignatura->aula?->tipo ?? 'Sin asignar' }}</td>
+                        <td>{{ $asignatura->aula?->nombre ?? 'Sin asignar' }}</td>
                         <td class="text-center">
                             <a href="{{ route('asignaturas.show', $asignatura) }}" class="btn btn-sm btn-info" title="Ver">
                                 <i class="fas fa-eye"></i> Ver
                             </a>
-                            <a href="{{ route('asignaturas.edit', $asignatura) }}" class="btn btn-sm btn-warning" title="Editar">
-                                <i class="fas fa-edit"></i> Editar
-                            </a>
-                            <button type="button" class="btn btn-sm btn-danger" 
-                                    data-toggle="modal" 
-                                    data-target="#deleteModal" 
-                                    data-id="{{ $asignatura->id }}" 
-                                    title="Eliminar">
-                                <i class="fas fa-trash-alt"></i> Eliminar
-                            </button>
+                            @can('administrar')
+                                <a href="{{ route('asignaturas.edit', $asignatura) }}" class="btn btn-sm btn-warning" title="Editar">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+                                <button type="button" class="btn btn-sm btn-danger"
+                                        data-toggle="modal"
+                                        data-target="#deleteModal"
+                                        data-id="{{ $asignatura->id }}"
+                                        title="Eliminar">
+                                    <i class="fas fa-trash-alt"></i> Eliminar
+                                </button>
+                            @endcan
                         </td>
+
                     </tr>
                 @endforeach
             </tbody>

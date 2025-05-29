@@ -14,16 +14,6 @@
                 <h5 class="mb-0"><i class="fas fa-building"></i> Nuevo Departamento</h5>
             </div>
 
-            @if ($errors->any())
-                <div class="alert alert-danger m-3">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
             <form action="{{ route('departamentos.store') }}" method="POST">
                 @csrf
                 <div class="card-body">
@@ -33,7 +23,7 @@
                                class="form-control @error('nombre') is-invalid @enderror"
                                value="{{ old('nombre') }}" required>
                         @error('nombre')
-                            <span class="invalid-feedback">{{ $message }}</span>
+                            <span class="invalid-feedback d-block">{{ $message }}</span>
                         @enderror
                     </div>
                 </div>
@@ -51,3 +41,20 @@
     </div>
 </div>
 @stop
+
+@section('css')
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
+@stop
+
+@section('js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script>
+    @if(session('success'))
+        toastr.success("{{ session('success') }}");
+    @endif
+
+    @if(session('error'))
+        toastr.error("{{ session('error') }}");
+    @endif
+</script>
+@endsection

@@ -32,23 +32,35 @@
                         {{-- Profesor --}}
                         <div class="form-group col-md-6">
                             <label for="usuario_id"><i class="fas fa-user mr-1 text-muted"></i> Profesor *</label>
-                            <select class="form-control @error('usuario_id') is-invalid @enderror" name="usuario_id" required>
-                                <option value="">Seleccione un profesor</option>
-                                @foreach($profesores as $profesor)
-                                    <option value="{{ $profesor->id }}" {{ old('usuario_id') == $profesor->id ? 'selected' : '' }}>{{ $profesor->name }}</option>
-                                @endforeach
-                            </select>
+
+                            @if(auth()->user()->hasRole('Profesor'))
+                                {{-- Mostrar solo el nombre del profesor y enviar el id oculto --}}
+                                <input type="text" class="form-control" value="{{ auth()->user()->name }}" disabled>
+                                <input type="hidden" name="usuario_id" value="{{ auth()->user()->id }}">
+                            @else
+                                <select id="profesorSelect" class="form-control" name="usuario_id" required>
+                                    <option value="">Seleccione un profesor</option>
+                                    @foreach($profesores as $profesor)
+                                        <option value="{{ $profesor->id }}" {{ old('usuario_id') == $profesor->id ? 'selected' : '' }}>
+                                            {{ $profesor->name }} ({{ $profesor->email }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            @endif
+
                             @error('usuario_id') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
+
 
                         {{-- Asignatura --}}
                         <div class="form-group col-md-6">
                             <label for="asignatura_id"><i class="fas fa-book mr-1 text-muted"></i> Asignatura *</label>
-                            <select class="form-control @error('asignatura_id') is-invalid @enderror" name="asignatura_id" required>
+                            <select id="asignaturaSelect" class="form-control" name="asignatura_id" required>
                                 <option value="">Seleccione una asignatura</option>
                                 @foreach($todasAsignaturas as $asignatura)
                                     <option value="{{ $asignatura->id }}" {{ old('asignatura_id') == $asignatura->id ? 'selected' : '' }}>
                                         {{ $asignatura->nombre }} 
+                                        @if($asignatura->departamento) - {{ $asignatura->departamento->nombre }} @endif
                                         @if($asignatura->profesor) - Prof. {{ $asignatura->profesor->name }} @endif
                                     </option>
                                 @endforeach
@@ -114,3 +126,40 @@
     </div>
 </div>
 @stop
+@section('js')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        @if(!auth()->user()->hasRole('Profesor'))
+        const profesorSelect = document.getElementById('profesorSelect');
+        const asignaturaSelect = document.getElementById('asignaturaSelect');
+
+        profesorSelect.addEventListener('change', function () {
+            const profesorId = this.value;
+
+            asignaturaSelect.innerHTML = '<option value="">Cargando...</option>';
+
+            if (profesorId) {
+                fetch(`/profesor/${profesorId}/asignaturas`)
+                    .then(response => response.json())
+                    .then(data => {
+                        asignaturaSelect.innerHTML = '<option value="">Seleccione una asignatura</option>';
+                        data.forEach(asignatura => {
+                            const option = document.createElement('option');
+                            option.value = asignatura.id;
+                            option.textContent = asignatura.nombre;
+                            asignaturaSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        asignaturaSelect.innerHTML = '<option value="">Error al cargar</option>';
+                        console.error('Error:', error);
+                    });
+            } else {
+                asignaturaSelect.innerHTML = '<option value="">Seleccione un profesor primero</option>';
+            }
+        });
+        @endif
+    });
+
+</script>
+@endsection
