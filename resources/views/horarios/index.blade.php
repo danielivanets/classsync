@@ -154,16 +154,91 @@
     </div>
   </div>
 </div>
+
+
+@can('administrar')
+  <div class="container-fluid" style="display: none">
+    <div class="row">
+      <!-- Panel izquierdo (eventos arrastrables) -->
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Eventos arrastrables</h4>
+          </div>
+          <div class="card-body">
+            <div id="external-events">
+              <div class="external-event bg-success">Asignatura 1</div>
+              <div class="external-event bg-warning">Asignatura 2</div>
+              <!-- ... más eventos ... -->
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="drop-remove"> Eliminar al soltar
+              </label>
+            </div>
+          </div>
+        </div>
+        <!-- Formulario para crear eventos -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Crear evento</h3>
+          </div>
+          <div class="card-body">
+            <div class="btn-group" style="width: 100%; margin-bottom: 10px;">
+              <ul class="fc-color-picker" id="color-chooser">
+                <li><a class="text-primary active" href="#"><i class="fas fa-square"></i></a></li>
+                <li><a class="text-success" href="#"><i class="fas fa-square"></i></a></li>
+                <li><a class="text-warning" href="#"><i class="fas fa-square"></i></a></li>
+                <li><a class="text-danger" href="#"><i class="fas fa-square"></i></a></li>
+              </ul>
+            </div>
+            <div class="input-group">
+              <input id="new-event" type="text" class="form-control" placeholder="Título del evento">
+              <div class="input-group-append">
+                <button id="add-new-event" type="button" class="btn btn-primary">Añadir</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Calendario principal -->
+      <div class="col-md-9">
+        <div class="card card-primary">
+          <div class="card-body p-0">
+            <div id="calendar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+@endcan
+
+
+
+
+
 @else
     <p>No hay horarios registrados.</p>
 @endif
 @stop
+
 
 @section('css')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5/main.min.css">
+    <style>
+        .external-event {
+            padding: 5px 10px;
+            margin: 5px 0;
+            cursor: move;
+            color: #fff;
+            border-radius: 3px;
+        }
+    </style>
 @stop
 
 @section('js')
@@ -174,6 +249,9 @@
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5/locales/es.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
 <script>
     $(document).ready(function () {
@@ -188,7 +266,10 @@
                 { targets: 1, visible: false }, // Oculta columna de orden de días
             ],
             order: [1, 'asc'],
-            dom: 'Bfrtip',
+            dom: '<"row mb-2"<"col-sm-6"l><"col-sm-6 d-flex justify-content-end align-items-center"B>>' + 
+                '<"row"<"col-sm-12"f>>' +
+                '<"row"<"col-sm-12 table-responsive"tr>>' +
+                '<"row mt-2"<"col-sm-5"i><"col-sm-7"p>>',
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -249,5 +330,79 @@
     $('#modalTodosHorarios').on('hidden.bs.modal', function () {
         location.reload();
     });
+
+////////////////////////////////////////////////////////////////
+//////////// PENDIENTE PARA ADAPTAR A LA SISTEMA ///////////////
+////////////////////////////////////////////////////////////////
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar FullCalendar
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            editable: true, // Permite arrastrar/redimensionar eventos
+            droppable: true, // Permite soltar eventos externos
+            events: [
+                // Eventos iniciales (opcional)
+                { title: 'Meeting', start: '2025-06-02T10:30:00', color: '#0073b7' },
+                { title: 'Lunch', start: '2025-06-02T12:00:00', color: '#00c0ef' }
+            ],
+            drop: function(info) {
+                // Lógica al soltar un evento externo
+                if (document.getElementById('drop-remove').checked) {
+                    info.draggedEl.parentNode.removeChild(info.draggedEl);
+                }
+            }
+        });
+        calendar.render();
+
+
+
+         // Habilitar arrastre para eventos externos
+        const externalEvents = document.getElementById('external-events');
+        new FullCalendar.Draggable(externalEvents, {
+            itemSelector: '.external-event',
+            eventData: function(eventEl) {
+            return {
+                title: eventEl.innerText,
+                backgroundColor: window.getComputedStyle(eventEl).backgroundColor
+            };
+            }
+        });
+
+        document.querySelectorAll('#color-chooser li a').forEach(el => {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelectorAll('#color-chooser li a').forEach(a => a.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        // Añadir nuevos eventos
+        document.getElementById('add-new-event').addEventListener('click', function () {
+            const title = document.getElementById('new-event').value.trim();
+            const activeColorEl = document.querySelector('#color-chooser li a.active');
+
+            if (title && activeColorEl) {
+                // Obtener solo la clase de color (ej. 'text-primary')
+                const colorClass = [...activeColorEl.classList].find(cls => cls.startsWith('text-'));
+                const colorName = colorClass?.split('-')[1] || 'primary'; // por si acaso
+
+                const eventEl = document.createElement('div');
+                eventEl.className = `external-event bg-${colorName}`;
+                eventEl.innerText = title;
+
+                document.getElementById('external-events').appendChild(eventEl);
+                document.getElementById('new-event').value = '';
+            } else {
+                alert('Debe ingresar un título y seleccionar un color');
+            }
+        });
+    });
+///////////////////////////////////////////////////////////
 </script>
 @stop
