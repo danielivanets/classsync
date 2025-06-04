@@ -98,7 +98,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $faker = \Faker\Factory::create();
 
         for ($i = 1; $i <= 5; $i++) {
-            $email = "profesor{$i}@edu.gva.es";
+            $email = "informatica_profesor{$i}@edu.gva.es";
             $name = $faker->name;
 
             $profesor = User::firstOrCreate(
@@ -121,7 +121,7 @@ class RolesAndPermissionsSeeder extends Seeder
             $numProfesores = rand(2, 4); // Puedes ajustar esta cantidad
 
             for ($i = 1; $i <= $numProfesores; $i++) {
-                $email = strtolower(str_replace(' ', '', $nombreDepto)) . "_prof{$i}@edu.gva.es";
+                $email = $this->normalizarNombreDepto($nombreDepto) . "_prof{$i}@edu.gva.es";
                 $name = $faker->name;
 
                 $profesor = User::firstOrCreate(
@@ -155,4 +155,11 @@ class RolesAndPermissionsSeeder extends Seeder
         );
         $guest->assignRole('Invitado');
     }
+    private function normalizarNombreDepto($nombre)
+    {
+        $nombre = strtolower($nombre);
+        $nombre = str_replace(['á','é','í','ó','ú','ñ'], ['a','e','i','o','u','n'], $nombre);
+        return preg_replace('/[^a-z]/', '', $nombre); // Elimina todo excepto letras
+    }
+    
 }

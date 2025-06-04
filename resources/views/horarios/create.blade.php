@@ -58,7 +58,7 @@
 
                     <div class="form-group">
                         <label for="aula_id"><i class="fas fa-door-open mr-1 text-muted"></i> Aula *</label>
-                        <select class="form-control @error('aula_id') is-invalid @enderror" id="aula_id" name="aula_id" required>
+                        <select class="form-control selectpicker @error('aula_id') is-invalid @enderror" id="aula_id" name="aula_id" data-live-search="true" required>
                             <option value="">Seleccione un aula</option>
                             @foreach($aulas as $aula)
                                 <option value="{{ $aula->id }}" {{ old('aula_id') == $aula->id ? 'selected' : '' }}>
@@ -73,11 +73,13 @@
 
                     <div class="form-group">
                         <label for="asignatura_id"><i class="fas fa-book mr-1 text-muted"></i> Asignatura *</label>
-                        <select class="form-control @error('asignatura_id') is-invalid @enderror" id="asignatura_id" name="asignatura_id" required>
+                        <select class="form-control selectpicker @error('asignatura_id') is-invalid @enderror" id="asignatura_id" name="asignatura_id" data-live-search="true" required>
                             <option value="">Seleccione una asignatura</option>
                             @foreach($asignaturas as $asignatura)
                                 <option value="{{ $asignatura->id }}" {{ old('asignatura_id') == $asignatura->id ? 'selected' : '' }}>
                                     {{ $asignatura->nombre }}
+                                    @if($asignatura->departamento) - {{ $asignatura->departamento->nombre }} @endif
+                                    @if($asignatura->profesor) - Prof. {{ $asignatura->profesor->name }} @endif
                                 </option>
                             @endforeach
                         </select>
@@ -102,8 +104,56 @@
 @stop
 
 @section('css')
-    <link rel="stylesheet" href="/css/admin_custom.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
 @stop
 
 @section('js')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Inicializar Select2 para los tres selects
+        $('#usuario_id, #aula_id, #asignatura_id').select2({
+            theme: 'bootstrap4',
+            placeholder: function(){
+                return $(this).data('placeholder') || "Seleccione una opción";
+            },
+            allowClear: true,
+            width: 'resolve' // o '100%' si prefieres forzarlo
+        });
+
+        // Manejar cambio en usuario_id para actualizar departamento
+        const departamentoHidden = $('#departamento_id');
+        const departamentoDisplay = $('#departamento_id_display');
+
+        $('#usuario_id').on('change', function () {
+            const selectedOption = $(this).find('option:selected');
+            const departamentoSlug = selectedOption.data('departamento');
+
+            let found = false;
+
+            departamentoDisplay.find('option').each(function () {
+                const nombre = $(this).text().trim().toLowerCase();
+
+                if (departamentoSlug && nombre.includes(departamentoSlug.toLowerCase())) {
+                    departamentoDisplay.val($(this).val());
+                    departamentoHidden.val($(this).val());
+                    found = true;
+                    return false; // salir del each
+                }
+            });
+
+            if (!found) {
+                departamentoDisplay.val('');
+                departamentoHidden.val('');
+            }
+
+            departamentoDisplay.trigger('change'); // refrescar select disabled si aplica
+        });
+
+        // Disparar evento change para cargar con old() si aplica
+        $('#usuario_id').trigger('change');
+    });
+</script>
 @stop
+

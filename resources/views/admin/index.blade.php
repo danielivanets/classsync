@@ -175,7 +175,7 @@
         $(document).ready(function () {
             $('#usuarios').DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                    url: '/js/i18n/es-ES.json'
                 },
                 responsive: true,
                 autoWidth: false,
@@ -184,7 +184,7 @@
     
             $('#tablaTodosUsuarios').DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                    url: '/js/i18n/es-ES.json'
                 },
                 pageLength: 10,
                 responsive: true

@@ -77,11 +77,13 @@
                             required>
                             <option value="">Seleccione una asignatura</option>
                             @foreach($asignaturas as $asignatura)
-                                <option value="{{ $asignatura->id }}" {{ old('asignatura_id', $horario->asignatura_id) == $asignatura->id ? 'selected' : '' }}>
+                                <option value="{{ $asignatura->id }}" 
+                                    {{ old('asignatura_id', $horario->asignatura_id) == $asignatura->id ? 'selected' : '' }}>
                                     {{ $asignatura->nombre }}
                                     @if($asignatura->departamento) - {{ $asignatura->departamento->nombre }} @endif
                                     @if($asignatura->profesor) - Prof. {{ $asignatura->profesor->name }} @endif
                                 </option>
+
                             @endforeach
                         </select>
                         @error('asignatura_id')
@@ -122,6 +124,12 @@
                 allowClear: true,
                 width: 'resolve'
             });
+            $('#aula_id').select2({
+            theme: 'bootstrap4',
+            placeholder: "Seleccione un aula",
+            allowClear: true,
+            width: 'resolve'
+        });
         });
     </script>
 @stop

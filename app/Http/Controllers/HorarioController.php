@@ -58,6 +58,18 @@ class HorarioController extends Controller
             'hora_fin' => 'required|date_format:H:i|after:hora_inicio',
             'asignatura_id' => 'required|exists:asignaturas,id',
             'aula_id' => 'required|exists:aulas,id',
+        ],
+        [
+            'dia.required' => 'El campo día es obligatorio.',
+            'hora_inicio.required' => 'La hora de inicio es obligatoria.',
+            'hora_inicio.date_format' => 'La hora de inicio debe tener el formato HH:MM.',
+            'hora_fin.required' => 'La hora de fin es obligatoria.',
+            'hora_fin.date_format' => 'La hora de fin debe tener el formato HH:MM.',
+            'hora_fin.after' => 'La hora de fin debe ser posterior a la hora de inicio.',
+            'asignatura_id.required' => 'Debe seleccionar una asignatura.',
+            'asignatura_id.exists' => 'La asignatura seleccionada no existe.',
+            'aula_id.required' => 'Debe seleccionar un aula.',
+            'aula_id.exists' => 'El aula seleccionada no existe.',
         ]);
 
         Horario::create([
@@ -103,6 +115,19 @@ class HorarioController extends Controller
             'asignatura_id' => 'required|exists:asignaturas,id',
             'aula_id' => 'required|exists:aulas,id',
             'visible' => 'sometimes|boolean',
+        ],
+        [
+            'dia.required' => 'El campo día es obligatorio.',
+            'hora_inicio.required' => 'La hora de inicio es obligatoria.',
+            'hora_inicio.date_format' => 'La hora de inicio debe tener el formato HH:MM.',
+            'hora_fin.required' => 'La hora de fin es obligatoria.',
+            'hora_fin.date_format' => 'La hora de fin debe tener el formato HH:MM.',
+            'hora_fin.after' => 'La hora de fin debe ser posterior a la hora de inicio.',
+            'asignatura_id.required' => 'Debe seleccionar una asignatura.',
+            'asignatura_id.exists' => 'La asignatura seleccionada no existe.',
+            'aula_id.required' => 'Debe seleccionar un aula.',
+            'aula_id.exists' => 'El aula seleccionada no existe.',
+            'visible.boolean' => 'El campo visible debe ser verdadero o falso.',
         ]);
     
         $horario->update($request->all());

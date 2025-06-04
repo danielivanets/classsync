@@ -105,7 +105,7 @@ $(document).ready(function () {
         responsive: true,
         pageLength: 25,
         language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+            url: '/js/i18n/es-ES.json'
         }
     });
 });

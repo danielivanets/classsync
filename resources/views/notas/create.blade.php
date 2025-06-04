@@ -59,14 +59,15 @@
                                 <option value="">Seleccione una asignatura</option>
                                 @foreach($todasAsignaturas as $asignatura)
                                     <option value="{{ $asignatura->id }}" {{ old('asignatura_id') == $asignatura->id ? 'selected' : '' }}>
-                                        {{ $asignatura->nombre }} 
-                                        @if($asignatura->departamento) - {{ $asignatura->departamento->nombre }} @endif
-                                        @if($asignatura->profesor) - Prof. {{ $asignatura->profesor->name }} @endif
+                                        {{ $asignatura->nombre }}
+                                        @if($asignatura->aula) - Aula: {{ $asignatura->aula->nombre }} @endif
+                                        @if($asignatura->departamento) - dep. {{ $asignatura->departamento->nombre }} @endif
                                     </option>
                                 @endforeach
                             </select>
                             @error('asignatura_id') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
+
 
                         {{-- Fecha --}}
                         <div class="form-group col-md-4">
@@ -126,40 +127,57 @@
     </div>
 </div>
 @stop
+
+@section('css')
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
+@stop
+
 @section('js')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        @if(!auth()->user()->hasRole('Profesor'))
-        const profesorSelect = document.getElementById('profesorSelect');
-        const asignaturaSelect = document.getElementById('asignaturaSelect');
+    $(document).ready(function () {
+        // Inicializar select2
+        $('#profesorSelect').select2({
+            theme: 'bootstrap4',
+            placeholder: "Seleccione un profesor",
+            allowClear: true,
+            width: 'resolve'
+        });
 
-        profesorSelect.addEventListener('change', function () {
-            const profesorId = this.value;
+        // Asignar evento change usando jQuery
+        $('#profesorSelect').on('change', function () {
+            const profesorId = $(this).val();
+            const $asignaturaSelect = $('#asignaturaSelect');
 
-            asignaturaSelect.innerHTML = '<option value="">Cargando...</option>';
+            $asignaturaSelect.html('<option value="">Cargando...</option>');
 
             if (profesorId) {
                 fetch(`/profesor/${profesorId}/asignaturas`)
                     .then(response => response.json())
                     .then(data => {
-                        asignaturaSelect.innerHTML = '<option value="">Seleccione una asignatura</option>';
+                        $asignaturaSelect.html('<option value="">Seleccione una asignatura</option>');
                         data.forEach(asignatura => {
-                            const option = document.createElement('option');
-                            option.value = asignatura.id;
-                            option.textContent = asignatura.nombre;
-                            asignaturaSelect.appendChild(option);
+                            // Construimos el texto que incluya nombre, departamento y aula
+                            let texto = asignatura.nombre;
+                            if (asignatura.aula && asignatura.aula.nombre) {
+                                texto += ` - Aula: ${asignatura.aula.nombre}`;
+                            }
+                            if (asignatura.departamento && asignatura.departamento.nombre) {
+                                texto += ` - dep. ${asignatura.departamento.nombre}`;
+                            }
+                            const option = new Option(texto, asignatura.id);
+                            $asignaturaSelect.append(option);
                         });
                     })
                     .catch(error => {
-                        asignaturaSelect.innerHTML = '<option value="">Error al cargar</option>';
+                        $asignaturaSelect.html('<option value="">Error al cargar</option>');
                         console.error('Error:', error);
                     });
             } else {
-                asignaturaSelect.innerHTML = '<option value="">Seleccione un profesor primero</option>';
+                $asignaturaSelect.html('<option value="">Seleccione un profesor primero</option>');
             }
         });
-        @endif
     });
-
 </script>
 @endsection

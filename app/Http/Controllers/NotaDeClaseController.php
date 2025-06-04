@@ -53,19 +53,16 @@ class NotaDeClaseController extends Controller
         $user = auth()->user();
 
         if ($user->hasRole('Profesor')) {
-            // Solo asignaturas del profesor autenticado
-            $todasAsignaturas = Asignatura::with(['departamento'])
-                ->where('usuario_id', $user->id)
-                ->visible()
-                ->get();
-
+            $todasAsignaturas = Asignatura::visible()->with(['departamento', 'aula'])->where('usuario_id', $user->id)->get();
+            $asignaturas = Asignatura::visible()->get();
             $profesores = collect([$user]); // Solo el usuario actual
         } else {
-            $todasAsignaturas = Asignatura::with(['profesor', 'departamento'])->visible()->get();
+            $todasAsignaturas = Asignatura::visible()->with(['departamento', 'aula'])->get();
+            $asignaturas = Asignatura::visible()->get();
             $profesores = User::role('Profesor')->get();
         }
-
-        return view('notas.create', compact('todasAsignaturas', 'profesores', 'user'));
+        
+        return view('notas.create', compact('todasAsignaturas', 'profesores', 'user', 'asignaturas'));
     }
 
 
@@ -174,11 +171,7 @@ class NotaDeClaseController extends Controller
 
     public function getAsignaturasPorProfesor($id)
     {
-        $asignaturas = Asignatura::with(['departamento'])
-        ->where('usuario_id', $id)
-        ->visible()
-        ->get();
-
+        $asignaturas = Asignatura::visible()->with(['departamento', 'aula'])->where('usuario_id', $id)->get();
         return response()->json($asignaturas);
     }
 

@@ -162,6 +162,13 @@
 
         // Disparar evento change para cargar con old() si aplica
         $('#usuario_id').trigger('change');
+
+        $('#aula_id').select2({
+            theme: 'bootstrap4',
+            placeholder: "Seleccione un aula",
+            allowClear: true,
+            width: 'resolve'
+        });
     });
 </script>
 @stop

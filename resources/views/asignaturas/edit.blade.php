@@ -121,7 +121,6 @@
             allowClear: true,
             width: 'resolve'
         });
-
         const departamentoDisplay = $('#departamento_id_display');
         const departamentoHidden = $('#departamento_id');
 
@@ -137,11 +136,19 @@
                 departamentoHidden.val('');
             }
 
-            departamentoDisplay.trigger('change'); // refrescar si necesario
+            departamentoDisplay.trigger('change');
         });
 
         // Disparar evento para cargar con old() o el valor actual
         $('#usuario_id').trigger('change');
+
+        
+        $('#aula_id').select2({
+            theme: 'bootstrap4',
+            placeholder: "Seleccione un aula",
+            allowClear: true,
+            width: 'resolve'
+        });
     });
 </script>
 @stop

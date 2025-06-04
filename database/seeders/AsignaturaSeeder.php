@@ -63,7 +63,7 @@ class AsignaturaSeeder extends Seeder
             'Filosofía' => 'Filosofia',
 
             // Educación Física
-            'Educación Física' => 'Educación Fisica',
+            'Educación Física' => 'Educacion Fisica',
 
             // Tecnología / Informática
             'Tecnología' => 'Informatica',
@@ -97,10 +97,10 @@ class AsignaturaSeeder extends Seeder
             'Educación Plástica' => 'Artes',
 
             // Religión / Ética
-            'Religión / Valores Éticos' => 'Religión',
+            'Religión / Valores Éticos' => 'Religion',
 
             // Tutoría
-            'Tutoría' => 'Orientación',
+            'Tutoría' => 'Orientacion',
 
             // Economía / Empresa
             'Economía' => 'Economia',
@@ -124,11 +124,11 @@ class AsignaturaSeeder extends Seeder
             'Prácticas en empresa (FCT)' => 'FOL',
 
             // Otros
-            'Gestión de la documentación jurídica y empresarial' => 'Administración',
-            'Recursos humanos y responsabilidad social corporativa' => 'Administración',
-            'Ofimática y proceso de la información' => 'Administración',
-            'Proceso integral de la actividad comercial' => 'Administración',
-            'Comunicación y atención al cliente' => 'Administración',
+            'Gestión de la documentación jurídica y empresarial' => 'Administracion',
+            'Recursos humanos y responsabilidad social corporativa' => 'Administracion',
+            'Ofimática y proceso de la información' => 'Administracion',
+            'Proceso integral de la actividad comercial' => 'Administracion',
+            'Comunicación y atención al cliente' => 'Administracion',
         ];
 
         // Crear todos los departamentos incluidos "Otros"
@@ -149,12 +149,28 @@ class AsignaturaSeeder extends Seeder
             if ($aula) {
                 foreach ($asignaturas as $nombreAsignatura) {
                     $nombreDepto = $departamentoPorAsignatura[$nombreAsignatura] ?? 'Otros';
+                    // Convertir a minúsculas para coincidir con el formato del correo
+                    $nombreDeptoLower = strtolower($nombreDepto);
+
+                    // Buscar un profesor cuyo email comience por el nombre del departamento
+                    $profesor = User::role('Profesor')
+                        ->where('email', 'like', "{$nombreDeptoLower}_%@edu.gva.es")
+                        ->inRandomOrder()
+                        ->first();
+
+                    $departamentoId = $departamentosPorNombre[$nombreDepto] ?? null;
+
+                    if (!$profesor) {
+                        // Elegir cualquier profesor aleatorio como último recurso
+                        $profesor = User::role('Profesor')->inRandomOrder()->first();
+                        $departamentoId = null;
+                    }
                     Asignatura::create([
                         'nombre' => $nombreAsignatura,
                         'descripcion' => null,
-                        'departamento_id' => $departamentosPorNombre[$nombreDepto],
-                        'aula_id' => $aula->id,
-                        'usuario_id' => Arr::random($profesores),
+                        'departamento_id' => $departamentoId,
+                        'aula_id' => $aula?->id,
+                        'usuario_id' => $profesor?->id,
                     ]);
                 }
             } else {

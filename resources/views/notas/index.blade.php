@@ -169,13 +169,20 @@
         $(document).ready(function () {
             $('#notas').DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                    url: '/js/i18n/es-ES.json'
                 },
                 responsive: true,
                 autoWidth: false,
-                pageLength: 10,
+                pageLength: 5,
+                lengthMenu: [
+                    [5, 10, 25, -1],
+                    [5, 10, 25, 'Todos'],
+                ],
                 order: [[0, 'desc']],
-                dom: 'Bfrtip',
+                dom: '<"row mb-2"<"col-sm-6"l><"col-sm-6 d-flex justify-content-end align-items-center"B>>' + 
+                '<"row"<"col-sm-12"f>>' +
+                '<"row"<"col-sm-12 table-responsive"tr>>' +
+                '<"row mt-2"<"col-sm-5"i><"col-sm-7"p>>',
                 buttons: [
                     {
                         extend: 'excelHtml5',
@@ -191,7 +198,7 @@
 
             $('#tablaTodasNotas').DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                    url: '/js/i18n/es-ES.json'
                 },
                 pageLength: 10,
                 responsive: true
