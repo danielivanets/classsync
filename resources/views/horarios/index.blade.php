@@ -36,7 +36,7 @@
         <table id="horarios" class="table table-bordered table-striped table-hover">
             <thead class="bg-light">
                 <tr>
-                    @can('administrar')<th>ID</th>@endcan
+                    <th style="display: none">ID</th>
                     <th>Orden Día</th>
                     <th>Día</th>
                     <th>Inicio</th>
@@ -50,7 +50,7 @@
             <tbody>
                 @foreach($horarios as $horario)
                 <tr>
-                    @can('administrar')<td>{{ $horario->id }}</td>@endcan
+                    <td style="display: none">{{ $horario->id }}</td>
                     <td>
                         {{
                             ['Lunes' => 1, 'Martes' => 2, 'Miércoles' => 3, 'Jueves' => 4, 'Viernes' => 5][$horario->dia] ?? 6
