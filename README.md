@@ -1,5 +1,5 @@
 
-<img src="public/vendor/adminlte/dist/img/ClassSyncLogo.png" width="200" alt="ClassSync
+<img src="public/img/ClassSyncLogo.png" width="200" alt="ClassSync Logo">
 
 # 📚 ClassSync
 
