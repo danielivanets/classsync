@@ -50,6 +50,21 @@ class AdminController extends Controller
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
             'roles'    => 'required|array',
+        ],
+        [
+            // Mensajes genéricos
+            'required' => 'El campo :attribute es obligatorio.',
+            'email'    => 'El campo :attribute debe ser una dirección de correo válida.',
+            'unique'   => 'El campo :attribute ya ha sido registrado.',
+            'confirmed'=> 'La confirmación de :attribute no coincide.',
+            'min.string' => 'El campo :attribute debe tener al menos :min caracteres.',
+        ], [
+            // Traducción de los atributos
+            'name' => 'nombre',
+            'email' => 'correo electrónico',
+            'password' => 'contraseña',
+            'password_confirmation' => 'confirmación de contraseña',
+            'roles' => 'roles',
         ]);
 
         // Creación del usuario
@@ -99,6 +114,20 @@ class AdminController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email,' . $id, // Para excluir el email actual del usuario
             'roles'    => 'required|array', // Asegúrate de que los roles sean un array
+        ],[
+            // Mensajes genéricos
+            'required'   => 'El campo :attribute es obligatorio.',
+            'email'      => 'El campo :attribute debe ser una dirección de correo válida.',
+            'unique'     => 'El campo :attribute ya ha sido registrado.',
+            'confirmed'  => 'La confirmación de :attribute no coincide.',
+            'min.string' => 'El campo :attribute debe tener al menos :min caracteres.',
+        ], [
+            // Traducción de los atributos
+            'name' => 'nombre',
+            'email' => 'correo electrónico',
+            'password' => 'contraseña',
+            'password_confirmation' => 'confirmación de contraseña',
+            'roles' => 'roles',
         ]);
 
         // Actualización del usuario
